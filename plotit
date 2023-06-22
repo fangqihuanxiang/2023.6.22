@@ -1,0 +1,190 @@
+
+#给两个组起名字
+##对照组名字
+nm_sm <- "sham"
+##实验组名字 
+nm_pt <- "PT"
+
+#给两个组设颜色
+##对照组颜色 
+cl1 <- "blue"
+##实验组颜色 
+cl2 <- "red"
+
+
+install.packages('ggthemes')
+install.packages('ggpubr')
+install.packages('cowplot')
+
+
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(ggpubr)
+library(cowplot)
+
+# data for course
+
+#histology 脑缺血切片
+bh0 <- data.frame(
+  Group = c(rep(nm_sm,4),rep(nm_pt,4)),
+  Infraction_volume= c(0,0,0,0,
+                       2.2680171,1.8720724,1.4617914,1.0423545)
+)
+
+# 2.5 行为学测试
+# 2.5.1 Longa评分
+bh1 <- data.frame(
+  Group = c(rep(nm_sm,4),rep(nm_pt,4)),
+  Longa_score = c(0,0,0,0,1,1,0,0.5)
+)
+
+
+# 2.5.4 Rotarod Test 转棒测试
+#用于评估小鼠和其他实验动物的运动协调和平衡能力。
+#动物需要在一个旋转的轴棍上保持平衡，记录时间。
+bh2 <- data.frame(
+  Group = c(rep(nm_sm,4),rep(nm_pt,4)),
+  Latency = c(300,267.6666667,49,113.3333333,
+              176.6666667,208.3333333,75,36.66666667)
+)
+
+# 2.5.3 Hanging Test 悬挂测试
+#用以评估动物的运动功能、协调性、平衡能力和握力。
+#通过调整横杆的直径增加实验难度，以观察不同条件下动物的表现。
+bh3 <- data.frame(
+  Group = c(rep(nm_sm,12),rep(nm_pt,12)),
+  Average_time = c(2.666666667,5,5,3.333333333,5,5,5,4,3.666666667,5,5,5,
+                   5,1.666666667,3.666666667,3.666666667,1,1.666666667,2.333333333,2.333333333,
+                   2.333333333,1.333333333,1,3.666666667),
+  Rod = rep(c(rep(1,4),rep(2,4),rep(3,4)),2)
+)
+
+# 2.5.2 Static Rods Test 静态杆测试
+#这是一种用于评估小鼠和大鼠运动协调和平衡能力的行为学实验。
+#在这个实验中，动物需要在一组固定的不锈钢杆子上行走。
+#实验者观察并记录动物在杆子上行走时的行为表现。
+# 2.5.2.1 转身时间
+bh41 <- data.frame(
+  Group = c(rep(nm_sm,20),rep(nm_pt,20)),
+  Orientation_time = c(3,22,8,7,5,4,16,5,4,4,22,2,3,4,27,3,120,36,120,8,
+                       4,10,19,55,2,12,120,21,3,13,120,120,3,12,120,120,24,34,120,120),
+  Rod = rep(c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,4)),2)
+)
+
+# 2.5.2.2 到达时间
+bh42 <- data.frame(
+  Group = c(rep(nm_sm,20),rep(nm_pt,20)),
+  End_time = c(120,30,120,44,120,10,37,65,49,49,30,19,27,29,35,78,120,52,120,63,
+               88,55,120,66,34,21,120,51,38,35,120,120,46,24,120,120,120,44,120,120),
+  Rod = rep(c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,4)),2)
+)
+
+# 2.5.5 Tail suspension test, TST 悬尾测试、
+#用于评估实验动物的抑郁行为。
+#动物被悬挂在尾部，实验观察其挣扎和摆动的行为。
+bh5 <- data.frame(
+  Group = c(rep(nm_sm,4),rep(nm_pt,4)),
+  Immobile_time = c(224,279,164,165,
+                    222,183,148,167)
+) 
+
+# 2.5.8 Elevated Plus Maze, EPM 高架十字迷宫
+#焦虑=开放臂时间占比
+bh6 <- data.frame(
+  Group = c(rep(nm_sm,4),rep(nm_pt,4)),
+  Proportion_of_time_in_open_arm = c(0.069613521,0.0146,0.065156756,0.068,
+                                     0.02178302,0.005045409,0.112646998,0.021926312)
+)
+
+
+# 2.5.6 Open Field Test，OFT 旷场测试
+#用于测量实验动物的自发活动、焦虑水平和运动能力。
+# 将动物置于开放无障碍空间中，记录其的活动范围和行为特征。
+# 6.1 总路程=总速度*10min
+bh71 <- data.frame(
+  Group = c(rep(nm_sm,4),rep(nm_pt,4)),
+  Total_distance = c(2557.442395,4144.900153,1301.393952,3943.587016,
+                     3968.398167,3990.383592,2159.63158,4418.183781)
+) 
+
+# 6.2 静止时间所占比例
+bh72 <- data.frame(
+  Group = c(rep(nm_sm,4),rep(nm_pt,4)),
+  Proportion_of_immobile_time = c(0.261827284,0.191435768,0.586684073,0.206602344,
+                                  0.189014257,0.180375562,0.418170455,0.184103512)
+)
+# 6.3 中心时间所占比例
+bh73 <- data.frame(
+  Group = c(rep(nm_sm,4),rep(nm_pt,4)),
+  Proportion_of_time_in_central_area = c(0.146766792,0.117380353,0.016100957,0.066023443,
+                                         0.168197324,0.202129066,0.043824701,0.259149723)
+)
+# 6.4 角落时间所占比例
+bh74 <- data.frame(
+  Group = c(rep(nm_sm,4),rep(nm_pt,4)),
+  Proportion_of_time_in_corners = c(0.534418023,0.434760705,0.872584856,0.438960211,
+                                    0.41047844,0.273803227,0.318490743,0.36857671)
+)
+# 2.5.7 新旧物
+# 识别指数=新/和
+bh8 <- data.frame(
+  Group = c(rep(nm_sm,4),rep(nm_pt,4)),
+  Recognition_index = c(8.8,0,0,0,
+                        0,61.8,0,50.5)
+)
+
+dbar1 <- function(dt,clr1,clr2,yl){
+  p <- ggbarplot(dt, x = names(dt)[1], y = names(dt)[2],
+                 ylab=yl,
+                 fill = "white", color = names(dt)[1], palette = c(clr1,clr2),
+                 width = 0.6,
+                 add = c("mean_se", "jitter"),
+                 add.params = list(shape = names(dt)[1]),
+                 ylim = max(dt[,2])*c(0, 1.2),
+                 position = position_dodge())
+  p + stat_compare_means(method = "t.test",label = "p.format",label.y = max(dt[,2])*1.1, aes(group = get(names(dt)[1]))) 
+}
+dbar2 <- function(dt,clr1,clr2,yl){
+  p <- ggbarplot(dt, x = names(dt)[3], y = names(dt)[2],
+                 ylab=yl,
+                 fill = "white", color = names(dt)[1], palette = c(clr1,clr2),
+                 width = 0.6,
+                 add = c("mean_se", "jitter"),
+                 add.params = list(shape = names(dt)[1]),
+                 ylim = max(dt[,2])*c(0, 1.2),
+                 position = position_dodge())
+  p + stat_compare_means(method = "t.test",label = "p.format",label.y = max(dt[,2])*1.1, aes(group = get(names(dt)[1]))) 
+}
+
+
+p0 <- dbar1(bh0,cl1,cl2,"Infraction volume(%)")
+
+p1 <- dbar1(bh1,cl1,cl2,"Longa score")
+p2 <- dbar1(bh2,cl1,cl2,"Latency(s)")
+p3 <- dbar2(bh3,cl1,cl2,"Average time(s)")
+p41 <- dbar2(bh41,cl1,cl2,"Orientation time(s)")
+p42 <- dbar2(bh42,cl1,cl2,"End time(s)")
+p5 <- dbar1(bh5,cl1,cl2,"Immobile time(s)")
+p6 <- dbar1(bh6,cl1,cl2,"Proportion of time in open arm(%)")
+
+p71 <- dbar1(bh71,cl1,cl2,"Total distance(cm)")
+p72 <- dbar1(bh72,cl1,cl2,"Proportion of immobile time(%)")
+p73 <- dbar1(bh73,cl1,cl2,"Proportion of time in central area(%)")
+p74 <- dbar1(bh74,cl1,cl2,"Proportion of time in corners(%)")
+
+p8 <- dbar1(bh8,cl1,cl2,"Recognition index(%)")
+
+
+now_path <- getwd()
+for (i in c(0,1,2,3,41,42,5,6,71,72,73,74,8)){
+  print( get(paste0('p',as.character(i))))
+  ggsave(
+    paste0(as.character(i),".tiff"),
+    path = now_path,
+    width = 8,
+    height = 4
+  )
+}
+zip("figures",paste0(as.character(c(0,1,2,3,41,42,5,6,71,72,73,74,8)),".tiff"))
+}
